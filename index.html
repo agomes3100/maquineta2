@@ -3,248 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Página de Login</title>
+    <title>Simulador de Maquineta de Cartão</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <style>
-        /* Reset básico */
-        * {
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            background: linear-gradient(to bottom, #2c3e50, #34495e); /* Gradiente escuro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
-        /* Configuração do Background com vídeo */
-        body, html {
+        .maquineta {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px; /* Máximo de largura para celulares maiores */
             height: 100%;
-            font-family: Arial, sans-serif;
+            max-height: 700px; /* Altura máxima para evitar ultrapassar a tela */
+            overflow: hidden; /* Oculta a rolagem da maquineta */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .screen {
+            background-color: black;
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            overflow-y: auto; /* Adiciona rolagem se necessário */
         }
 
-        /* Cabeçalho com Logo ou Título alinhado à esquerda */
-        header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .logo {
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            margin-left: 30px;
-            letter-spacing: 2px;
-        }
-
-        /* Vídeo como fundo */
-        .video-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-        }
-
-        /* Estilo do Container de Login transparente */
-        .login-container {
-            background: rgba(255, 255, 255, 0.1); /* Fundo transparente */
-            padding: 40px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px); /* Efeito de blur */
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-        }
-
-        /* Estilo do título */
-        .login-container h2 {
-            color: white;
-            font-size: 24px;
-            margin-bottom: 30px;
-        }
-
-        /* Estilo dos Inputs */
-        .login-container input {
-            width: 100%;
-            padding: 15px;
+        .screen p {
+            font-size: 1.2em;
             margin: 10px 0;
-            border: none;
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            font-size: 16px;
         }
 
-        /* Placeholder dos Inputs */
-        .login-container input::placeholder {
-            color: #ccc;
-        }
-
-        /* Estilo do Botão */
-        .login-container button {
-            width: 100%;
-            padding: 15px;
-            background-color: rgba(72, 133, 237, 0.8); /* Azul com transparência */
-            color: white;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s ease;
-        }
-
-        .login-container button:hover {
-            background-color: rgba(145, 52, 168, 0.8); /* Rosa arroxeado ao passar o mouse */
-        }
-
-        /* Links abaixo do formulário de login */
-        .login-container .login-links {
-            margin-top: 15px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .login-container .login-links a {
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .login-container .login-links a:hover {
-            text-decoration: underline;
-        }
-
-        /* Botões de login social */
-        .social-login {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .social-login button {
-            background-color: transparent;
-            border: none;
-            font-size: 30px;
-            margin: 0 10px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .social-login button:hover {
-            transform: scale(1.2);
-        }
-
-        .social-login button.google i {
-            color: #db4437; /* Google vermelho */
-        }
-
-        .social-login button.facebook i {
-            color: #4267B2; /* Facebook azul */
-        }
-
-        .social-login button.linkedin i {
-            color: #0077b5; /* LinkedIn azul */
-        }
-
-        /* Footer estilizado */
-        footer {
+        .input-screen {
+            font-size: 2.5em;
             text-align: center;
-            color: white;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+            margin: 15px 0;
+        }
+
+        .password {
+            font-size: 2.5em;
+            letter-spacing: 5px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 10px;
+            margin-top: 15px;
             width: 100%;
-            position: absolute;
-            bottom: 0;
+            max-width: 400px; /* Máximo de largura para o teclado */
         }
 
-        footer p {
-            font-size: 14px;
+        .keypad button {
+            padding: 20px;
+            font-size: 1.5em;
+            background-color: #000; /* Fundo preto */
+            color: white;
+            border: 2px solid #fff; /* Borda branca */
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .login-container {
-                padding: 30px;
-            }
+        .keypad button:hover {
+            background-color: #333; /* Cor ao passar o mouse */
+            transform: scale(1.05);
+        }
 
-            .login-container h2 {
-                font-size: 20px;
-            }
+        .keypad button:active {
+            transform: scale(0.95);
+        }
 
-            .social-login {
-                flex-direction: column;
-            }
+        .keypad button.enter {
+            background-color: #4CAF50; /* Verde */
+            border: none; /* Remove borda para o botão de enter */
+        }
 
-            .social-login button {
-                margin-bottom: 10px;
-            }
+        .keypad button.enter:hover {
+            background-color: #45a049;
+        }
+
+        .keypad button.corrigir {
+            background-color: #e67e22; /* Laranja */
+            border: none; /* Remove borda para o botão de corrigir */
+        }
+
+        .keypad button.corrigir:hover {
+            background-color: #d35400;
+        }
+
+        .parcelamento-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-height: 300px; /* Limita a altura máxima da seção de parcelamento */
+            overflow-y: auto; /* Adiciona rolagem se necessário */
+        }
+
+        .parcelamento {
+            font-size: 1.2em;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .parcelamento button {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.3); /* Transparência */
+            color: white;
+            border: none; /* Remove borda */
+            border-radius: 10px; /* Pontas levemente arredondadas */
+            font-size: 1.2em;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-sizing: border-box; /* Garante que o padding não afete o tamanho do botão */
+        }
+
+        .parcelamento button:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        .parcelamento button:active {
+            transform: scale(0.95);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .resumo-transacao {
+            text-align: left;
+            font-size: 1em;
+            margin-top: 20px;
+        }
+
+        .resumo-transacao p {
+            margin: 5px 0;
+        }
+
+        button.payment-method {
+            padding: 20px;
+            font-size: 1.5em;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 300px; /* Dimensão uniforme */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button.payment-method:hover {
+            background-color: #555;
+            transform: scale(1.05);
+        }
+
+        button.payment-method:active {
+            transform: scale(0.95);
+        }
+
+        button.nova-venda {
+            background-color: #3498db;
+            padding: 15px;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        button.nova-venda:hover {
+            background-color: #2980b9;
+        }
+
+        button.imprimir {
+            background-color: #e67e22;
+            padding: 15px;
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        button.imprimir:hover {
+            background-color: #d35400;
+        }
+
+        #qrcode {
+            margin-top: 20px;
+            width: 200px; /* Tamanho fixo do QR Code */
+            height: 200px;
         }
     </style>
-    <!-- Inclua o Font Awesome para ícones sociais -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
-    <!-- Vídeo de fundo -->
-    <video autoplay muted loop class="video-bg">
-        <source src="video.mp4" type="video/mp4">
-        Seu navegador não suporta vídeos HTML5.
-    </video>
-
-    <!-- Cabeçalho com logo ou título -->
-    <header>
-        <div class="logo">Minha Plataforma</div>
-    </header>
-
-    <!-- Container de Login transparente -->
-    <div class="login-container">
-        <h2>Faça o Login</h2>
-
-        <!-- Formulário de Login -->
-        <form action="/login" method="POST">
-            <input type="text" placeholder="Usuário" name="username" required>
-            <input type="password" placeholder="Senha" name="password" required>
-            <button type="submit">Entrar</button>
-        </form>
-
-        <!-- Links adicionais -->
-        <div class="login-links">
-            <a href="#">Esqueceu a senha?</a>
-            <a href="#">Criar uma nova conta</a>
-        </div>
-
-        <!-- Login social com ícones -->
-        <div class="social-login">
-            <button class="google">
-                <i class="fab fa-google"></i>
-            </button>
-            <button class="facebook">
-                <i class="fab fa-facebook-f"></i>
-            </button>
-            <button class="linkedin">
-                <i class="fab fa-linkedin-in"></i>
-            </button>
+<div class="maquineta">
+    <div class="screen" id="telaInicial">
+        <p>Digite o valor:</p>
+        <div class="input-screen" id="valorDigitado">R$ 0,00</div>
+        <div class="keypad">
+            <button onclick="addNumber('1')">1</button>
+            <button onclick="addNumber('2')">2</button>
+            <button onclick="addNumber('3')">3</button>
+            <button onclick="addNumber('4')">4</button>
+            <button onclick="addNumber('5')">5</button>
+            <button onclick="addNumber('6')">6</button>
+            <button onclick="addNumber('7')">7</button>
+            <button onclick="addNumber('8')">8</button>
+            <button onclick="addNumber('9')">9</button>
+            <button onclick="addNumber('0')">0</button>
+            <button class="corrigir" onclick="corrigir()">←</button>
+            <button class="enter" onclick="entrar()">✔</button>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2024 Sua Empresa. Todos os direitos reservados.</p>
-    </footer>
+    <div class="screen hidden" id="telaPagamento">
+        <p>Selecione o método de pagamento:</p>
+        <button class="payment-method" onclick="selecionarMetodo('Crédito')">Crédito</button>
+        <button class="payment-method" onclick="selecionarMetodo('Débito')">Débito</button>
+        <button class="payment-method" onclick="selecionarMetodo('Pix')">Pix</button>
+    </div>
+
+    <div class="screen hidden" id="telaParcelas">
+        <p>Selecione o número de parcelas:</p>
+        <div class="parcelamento-container" id="opcoesParcelamento"></div>
+    </div>
+
+    <div class="screen hidden" id="telaCartao">
+        <p>Insira o cartão...</p>
+        <div id="inserirCartaoAnimacao">⟶[======]</div>
+    </div>
+
+    <div class="screen hidden" id="telaSenha">
+        <p>Digite a senha:</p>
+        <div class="password" id="senhaDigitada">****</div>
+        <div class="keypad">
+            <button onclick="addSenha('1')">1</button>
+            <button onclick="addSenha('2')">2</button>
+            <button onclick="addSenha('3')">3</button>
+            <button onclick="addSenha('4')">4</button>
+            <button onclick="addSenha('5')">5</button>
+            <button onclick="addSenha('6')">6</button>
+            <button onclick="addSenha('7')">7</button>
+            <button onclick="addSenha('8')">8</button>
+            <button onclick="addSenha('9')">9</button>
+            <button onclick="addSenha('0')">0</button>
+            <button class="corrigir" onclick="corrigirSenha()">←</button>
+            <button class="enter" onclick="finalizarPagamento()">✔</button>
+        </div>
+    </div>
+
+    <div class="screen hidden" id="telaFinal">
+        <p>Resumo da transação:</p>
+        <div class="resumo-transacao" id="resumoTransacao"></div>
+        <button class="payment-method nova-venda" onclick="novaVenda()">Iniciar nova venda</button>
+        <button class="imprimir" onclick="imprimirComprovante()">Imprimir Comprovante</button>
+        <div id="qrcode"></div> <!-- Adiciona o espaço para o QR Code -->
+    </div>
+</div>
+
+<script>
+    let valor = '';
+    let senha = '';
+    let metodo = '';
+    let parcelas = 1;
+
+    function atualizarValor() {
+        const valorFormatado = parseFloat(valor).toFixed(2).replace('.', ',');
+        document.getElementById('valorDigitado').innerText = 'R$ ' + valorFormatado;
+    }
+
+    function addNumber(number) {
+        if (valor.length < 8) { // Limite de até R$ 99999.99
+            valor += number;
+            atualizarValor();
+        }
+    }
+
+    function corrigir() {
+        valor = valor.slice(0, -1);
+        atualizarValor();
+    }
+
+    function entrar() {
+        if (document.getElementById('telaInicial').style.display !== 'none') {
+            if (valor.length === 0 || parseFloat(valor) === 0) {
+                alert('Digite um valor válido.');
+            } else {
+                mostrarTela('telaPagamento');
+            }
+        } else if (document.getElementById('telaSenha').style.display !== 'none') {
+            finalizarPagamento();
+        }
+    }
+
+    function selecionarMetodo(metodoSelecionado) {
+        metodo = metodoSelecionado;
+        if (metodo === 'Crédito') {
+            mostrarParcelamento();
+        } else if (metodo === 'Pix') {
+            mostrarTela('telaFinal');
+            gerarQRCodePix();
+        } else {
+            mostrarTela('telaCartao');
+            simularInsercaoCartao();
+        }
+    }
+
+    function mostrarParcelamento() {
+        const valorTotal = parseFloat(valor);
+        let opcoes = '';
+        for (let i = 1; i <= 12; i++) {
+            const valorParcela = (valorTotal / i).toFixed(2);
+            opcoes += `<button class="parcelamento" onclick="selecionarParcelas(${i})">${i}x de R$ ${valorParcela}</button>`;
+        }
+        document.getElementById('opcoesParcelamento').innerHTML = opcoes;
+        mostrarTela('telaParcelas');
+    }
+
+    function selecionarParcelas(numeroParcelas) {
+        parcelas = numeroParcelas;
+        mostrarTela('telaCartao');
+        simularInsercaoCartao();
+    }
+
+    function mostrarTela(tela) {
+        document.querySelectorAll('.screen').forEach(t => t.classList.add('hidden'));
+        document.getElementById(tela).classList.remove('hidden');
+    }
+
+    function simularInsercaoCartao() {
+        setTimeout(() => {
+            mostrarTela('telaSenha');
+        }, 2000);
+    }
+
+    function gerarQRCodePix() {
+        const valorTotal = parseFloat(valor).toFixed(2);
+        const qrCodeData = `00020126360014BR.GOV.BCB.PIX0114${Math.random().toString().slice(2, 16)}0204${valorTotal.replace('.', '')}5204000053039865405${Math.random().toString().slice(2, 12)}5802BR5925PIX QR Code`; // Dados simulados
+        const qrcodeContainer = document.getElementById('qrcode');
+        qrcodeContainer.innerHTML = ''; // Limpa o container antes de gerar o novo QR Code
+        QRCode.toCanvas(qrcodeContainer, qrCodeData, {
+            width: 200,
+            height: 200,
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
+            }
+        }, (error) => {
+            if (error) console.error(error);
+        });
+    }
+
+    function addSenha(number) {
+        if (senha.length < 4) {
+            senha += number;
+            document.getElementById('senhaDigitada').innerText = senha.replace(/./g, '*');
+        }
+    }
+
+    function corrigirSenha() {
+        senha = senha.slice(0, -1);
+        document.getElementById('senhaDigitada').innerText = senha.replace(/./g, '*');
+    }
+
+    function finalizarPagamento() {
+        const valorTotal = parseFloat(valor).toFixed(2);
+        const valorParcela = (valorTotal / parcelas).toFixed(2);
+        const resumo = `
+            <p>Valor Total: R$ ${valorTotal}</p>
+            <p>Parcelas: ${parcelas}x de R$ ${valorParcela}</p>
+            <p>Método: ${metodo}</p>
+        `;
+        document.getElementById('resumoTransacao').innerHTML = resumo;
+        mostrarTela('telaFinal');
+        if (metodo === 'Pix') {
+            gerarQRCodePix();
+        }
+    }
+
+    function imprimirComprovante() {
+        const resumo = document.getElementById('resumoTransacao').innerText;
+        const janelaImpressao = window.open('', '', 'height=600,width=800');
+        janelaImpressao.document.write('<html><head><title>Comprovante</title>');
+        janelaImpressao.document.write('</head><body>');
+        janelaImpressao.document.write('<h1>Comprovante de Pagamento</h1>');
+        janelaImpressao.document.write('<pre>' + resumo + '</pre>');
+        janelaImpressao.document.write('</body></html>');
+        janelaImpressao.document.close();
+        janelaImpressao.focus();
+        janelaImpressao.print();
+    }
+
+    function novaVenda() {
+        valor = '';
+        senha = '';
+        metodo = '';
+        parcelas = 1;
+        atualizarValor();
+        document.getElementById('senhaDigitada').innerText = '****';
+        mostrarTela('telaInicial');
+    }
+</script>
 
 </body>
-</html>
+    </html>
+    
